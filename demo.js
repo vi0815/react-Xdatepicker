@@ -1,30 +1,18 @@
 import * as React from 'react';
-import { XDate } from './xdate';
-import { XDateRange } from './xdateRange';
+import { XDate, generateTimeObject } from './xdate';
 
-const testValue = '2022-07-18T08:00+0100';
 
 export default function MaterialUIPickers() {
-  const [resourceDate, setResourceDate] = React.useState({
-    startDateString: null,
-    startDateMInutesMidnight: null,
-    endDateString: null,
-    endDateMInutesMidnight: null,
-
-    startDateMoment: null,
-    endDateMoment: null
-
-  });
+  const [resourceDate, setResourceDate] = React.useState(() => generateTimeObject(
+    "2022-08-04", "2022-08-14", "Europe/London", false
+  ))
 
 
   return (
     <div>
       Support <br /> <br />
       <XDate
-        startDate={null}
-        endDate={"2022-08-04"}
-        timeZone={'Europe/London'}
-        showTime={false}
+        timeObject = {resourceDate}
         disableShowTimeSwitch={false}
         onChange={(target) => {
           setResourceDate(target)
@@ -32,15 +20,8 @@ export default function MaterialUIPickers() {
         }}
       />
 
-      <p />
-      <br /> Event <br /> <br />
-      <XDate
-        startDate="2022-12-22"
-        endDate={'2022-12-24'}
-        timeZone={'Europe/London'}
-        showTime={true}
-        disableShowTimeSwitch={true}
-      />
+
+
     </div>
   );
 }

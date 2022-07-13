@@ -19,9 +19,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 XDate.propTypes = {
   showTime: PropTypes.bool,
-  startDate: PropTypes.string.isRequired,
-  endDate: PropTypes.string.isRequired,
-  timeZone: PropTypes.string.isRequired,
+  timeObject: PropTypes.object.required,
   disableShowTimeSwitch: PropTypes.bool,
   onChange: PropTypes.func,
 };
@@ -33,11 +31,21 @@ XDate.defaultProps = {
   },
 };
 
+export function generateTimeObject(startDate, endDate, timeZone, timeEnabled) {
+  let response = {}
+  response.startDate = startDate==null?null:new Date(startDate)
+  response.endDate = endDate==null?null:new Date(endDate)
+  response.timeZone = timeZone==null?"Europe/London":timeZone
+  response.timeEnabled = timeEnabled
+  return response
+}
+
+
 export function XDate(props) {
-  const [showTime, setShowTime] = React.useState(props.showTime);
-  const [startDate, setStartDate] = React.useState(props.startDate==null?null:new Date(props.startDate));
-  const [endDate, setEndDate] = React.useState(props.endDate==null?null:new Date(props.endDate));
-  const [timeZone, setTimeZone] = React.useState(props.timeZone);
+  const [showTime, setShowTime] = React.useState(props.timeObject.timeEnabled);
+  const [startDate, setStartDate] = React.useState(props.timeObject.startDate);
+  const [endDate, setEndDate] = React.useState(props.timeObject.endDate);
+  const [timeZone, setTimeZone] = React.useState(props.timeObject.timeZone);
 
   const [open, setOpen] = React.useState(false);
 
