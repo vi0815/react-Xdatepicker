@@ -1,10 +1,5 @@
 import * as React from 'react';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import moment from 'moment-timezone';
-import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
-import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -21,8 +16,6 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import PropTypes, { string, bool, func } from 'prop-types';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-
-const mmtMidnight = moment().clone().startOf('day');
 
 XDate.propTypes = {
   showTime: PropTypes.bool,
