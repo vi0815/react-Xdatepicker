@@ -22,7 +22,7 @@ export default function MaterialUIPickers() {
       Support <br /> <br />
       <XDate
         startDate={null}
-        endDate={null}
+        endDate={"2022-08-04"}
         timeZone={'Europe/London'}
         showTime={false}
         disableShowTimeSwitch={false}

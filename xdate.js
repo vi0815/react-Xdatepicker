@@ -18,12 +18,9 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import PropTypes, {string, bool, func} from "prop-types";
-import DatePicker from "react-datepicker";
-
-
-
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import PropTypes, { string, bool, func } from 'prop-types';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const mmtMidnight = moment().clone().startOf('day');
 
@@ -33,56 +30,40 @@ XDate.propTypes = {
   endDate: PropTypes.string.isRequired,
   timeZone: PropTypes.string.isRequired,
   disableShowTimeSwitch: PropTypes.bool,
-  onChange: PropTypes.func
-
-}
+  onChange: PropTypes.func,
+};
 XDate.defaultProps = {
   showTime: false,
   disableShowTimeSwitch: false,
-  onChange: (target) => {return}
-}
-
-
+  onChange: (target) => {
+    return;
+  },
+};
 
 export function XDate(props) {
   const [showTime, setShowTime] = React.useState(props.showTime);
-  const [startDate, setStartDate] = React.useState(moment(props.startDate));
-  const [endDate, setEndDate] = React.useState(moment(props.endDate));
+  const [startDate, setStartDate] = React.useState(props.startDate==null?null:new Date(props.startDate));
+  const [endDate, setEndDate] = React.useState(props.endDate==null?null:new Date(props.endDate));
   const [timeZone, setTimeZone] = React.useState(props.timeZone);
 
   const [open, setOpen] = React.useState(false);
 
-
-  const sendState = () => {
-    let target = {}
-    target["startDateString"] = startDate.format("YYYY-MM-DD")
-    target["startDateMinutesMidnight"] = showTime?startDate.diff(mmtMidnight, 'minutes'):null
-    target["startDateMoment"] = startDate
-
-    target["endDateString"] = startDate.format("YYYY-MM-DD")
-    target["endDateMinutesMidNight"] = showTime?startDate.diff(mmtMidnight, 'minutes'):null
-    target["endDateMoment"] = startDate
-
-    target["timeZone"] = timeZone
-
-    props.onChange(target)
-  }
-
+  const sendState = () => {};
 
   const handleShowTime = (event) => {
     setShowTime(event.target.checked);
-    sendState()
+    sendState();
   };
 
   const handleChangeStartDate = (newValue) => {
     setStartDate(newValue);
-    console.log(newValue.format("YYYY-MM-DD"))
-    sendState()
+    console.log(newValue.format('YYYY-MM-DD'));
+    sendState();
   };
 
   const handleChangeEndDate = (newValue) => {
     setEndDate(newValue);
-    sendState()
+    sendState();
   };
 
   const handleClickOpen = () => {
@@ -95,82 +76,40 @@ export function XDate(props) {
 
   const handleChange = (event) => {
     setTimeZone(event.target.value);
-    sendState()
+    sendState();
   };
 
-  /*
   const generateDateTimePicker = () => {
     return (
-        <>
+      <>
+        <Stack direction="row" spacing={1}>
           <DatePicker
-            selected={startDate}
+            showTimeSelect={showTime}
             onChange={(date) => setStartDate(date)}
-            selectsStart
-            startDate={startDate}
-            endDate={endDate}
+            selected={startDate}
+            maxDate={endDate}
+            dateFormat={showTime?'yyyy-MM-dd hh:mm':'yyyy-MM-dd'}
+            peekNextMonth
+            showMonthDropdown
+            showYearDropdown
+            dropdownMode="select"
+            placeholderText={showTime?"Start date and time":"Start date"}
           />
           <DatePicker
+            showTimeSelect={showTime}
+            dateFormat={showTime?'yyyy-MM-dd hh:mm':'yyyy-MM-dd'}
             selected={endDate}
             onChange={(date) => setEndDate(date)}
-            selectsEnd
-            startDate={startDate}
-            endDate={endDate}
             minDate={startDate}
-          />
-        </>
-    )
-  }
-  */
+            peekNextMonth
+            showMonthDropdown
+            showYearDropdown
+            dropdownMode="select"
+            placeholderText={showTime?"End date and time":"End date"}
 
-  const generateTimePicker = () => {
-    return (
-      <LocalizationProvider dateAdapter={AdapterMoment}>
-        <Stack direction="row" spacing={1}>
-          <MobileDateTimePicker
-            clearable
-            label="Start Date & Time"
-            inputFormat="yyyy-MM-DD hh:mm"
-            value={startDate}
-            maxDateTime={endDate}
-            onChange={handleChangeStartDate}
-            renderInput={(params) => <TextField {...params} />}
-          />
-          <MobileDateTimePicker
-            label="End Date & Time"
-            inputFormat="yyyy-MM-DD hh:mm"
-            minDateTime={startDate}
-            value={endDate}
-            onChange={handleChangeEndDate}
-            renderInput={(params) => <TextField {...params}></TextField>}
           />
         </Stack>
-      </LocalizationProvider>
-    );
-  };
-
-  const generateDatePicker = () => {
-    return (
-      <LocalizationProvider dateAdapter={AdapterMoment}>
-        <Stack direction="row" spacing={1}>
-          <MobileDatePicker
-            clearable
-            label="Start Date"
-            inputFormat="yyyy-MM-DD"
-            value={startDate}
-            maxDateTime={endDate}
-            onChange={handleChangeStartDate}
-            renderInput={(params) => <TextField {...params} />}
-          />
-          <MobileDatePicker
-            label="End Date"
-            inputFormat="yyyy-MM-DD"
-            minDateTime={startDate}
-            value={endDate}
-            onChange={handleChangeEndDate}
-            renderInput={(params) => <TextField {...params}></TextField>}
-          />
-        </Stack>
-      </LocalizationProvider>
+      </>
     );
   };
 
@@ -185,9 +124,14 @@ export function XDate(props) {
         align="start"
         justifyContent={'start'}
       >
-                <FormControlLabel
+        <FormControlLabel
           control={
-            <Switch disabled={props.disableShowTimeSwitch} checked={showTime} onChange={handleShowTime} size="small" />
+            <Switch
+              disabled={props.disableShowTimeSwitch}
+              checked={showTime}
+              onChange={handleShowTime}
+              size="small"
+            />
           }
           label="Time"
         />
@@ -200,47 +144,46 @@ export function XDate(props) {
             Timezone: {timeZone}
           </Button>
         ) : null}
-
       </Box>
     );
   };
 
-const timeZoneDialog = () => {
-  return(
-  <Dialog disableEscapeKeyDown open={open} onClose={handleClose}>
-  <DialogTitle>Select Timezone</DialogTitle>
-  <DialogContent>
-    <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
-      <FormControl sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel htmlFor="select-timezone">Age</InputLabel>
-        <Select
-          native
-          value={timeZone}
-          onChange={handleChange}
-          input={<OutlinedInput label="Age" id="select-timezone" />}
-        >
-          <option aria-label="None" value="" />
-          <option value={'Europe/London'}>London</option>
-          <option value={'Europe/Berlin'}>Berlin</option>
-          <option value={'Europe/Brussels'}>Brussels</option>
-          <option value={'Europe/Paris'}>Paris</option>
-        </Select>
-      </FormControl>
-    </Box>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={handleClose}>Cancel</Button>
-    <Button onClick={handleClose}>Ok</Button>
-  </DialogActions>
-</Dialog>
-  )
-}
+  const timeZoneDialog = () => {
+    return (
+      <Dialog disableEscapeKeyDown open={open} onClose={handleClose}>
+        <DialogTitle>Select Timezone</DialogTitle>
+        <DialogContent>
+          <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
+            <FormControl sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel htmlFor="select-timezone">Age</InputLabel>
+              <Select
+                native
+                value={timeZone}
+                onChange={handleChange}
+                input={<OutlinedInput label="Age" id="select-timezone" />}
+              >
+                <option aria-label="None" value="" />
+                <option value={'Europe/London'}>London</option>
+                <option value={'Europe/Berlin'}>Berlin</option>
+                <option value={'Europe/Brussels'}>Brussels</option>
+                <option value={'Europe/Paris'}>Paris</option>
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleClose}>Ok</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
 
   return (
     <div>
       <Stack rowSpacing={0}>
-        {showTime ? generateTimePicker() : generateDatePicker()}
-          {getTimeBar()}
+        {generateDateTimePicker()}
+        {getTimeBar()}
       </Stack>
 
       {timeZoneDialog()}
