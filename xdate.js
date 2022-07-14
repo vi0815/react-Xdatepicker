@@ -15,18 +15,39 @@ import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import PropTypes, { string, bool, func, object } from 'prop-types';
 import DatePicker from 'react-datepicker';
+import { getTimezoneOffset } from 'date-fns-tz'
+
 
 import 'react-datepicker/dist/react-datepicker.css';
 
 const xapi2datetime = new RegExp(
   '^([0-9]{4}-[0-9]{2}-[0-9]{2})T([0-9]{2}:[0-9]{2}):[0-9]{2}([+-][0-9]{2}[0-9]{2})$',
-  'gm'
+  'm'
 );
 
 const xapi2date = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$', '');
 
 const displayFormatDate = 'yyyy-MM-dd';
 const displayFormatTime = 'yyyy-MM-dd HH:mm';
+
+function getHoursOffsetFromTimezone(date, tz) {
+  let hours = getTimezoneOffset(tz, date)/60/60/1000
+  let result = hours>=0?"+":"-"
+  result = result + String(hours).padStart(2, '0') + '00'
+  return result
+}
+
+function prepareTimeObject(dateObject, tzString) {
+    let redate = /\//g
+    let date = dateObject.toLocaleDateString().replace(redate, "-")
+    let time = date + "T" + dateObject.toLocaleTimeString().split(":").slice(0,2).join(':') + getHoursOffsetFromTimezone(date, tzString)
+    let minutes = dateObject.getHours()*60 + dateObject.getMinutes()
+    return {
+      date: date,
+      time: time,
+      minutes: minutes
+    }    
+}
 
 function createJSDateObject(date) {
   console.log('dateconversion for' + date);
@@ -44,9 +65,8 @@ function createJSDateObject(date) {
   // test for date with time
   if (xapi2datetime.test(date)) {
     // ok, ignore the time zone
-    console.log(new Date(xapi2datetime.replace(date, '$1 $2')));
 
-    return new Date(xapi2datetime.replace(date, '$1 $2'));
+    return new Date(date.replace(xapi2datetime, '$1 $2'));
   }
 
   console.log('!!!!!');
@@ -90,6 +110,7 @@ export function XDate(props) {
 
   React.useEffect(() => {
     sendState();
+    prepareTimeObject(startDate, timeZone)
   }, [showTime, startDate, endDate, timeZone]);
 
   const sendState = () => {
