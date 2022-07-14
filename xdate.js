@@ -15,41 +15,43 @@ import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import PropTypes, { string, bool, func, object } from 'prop-types';
 import DatePicker from 'react-datepicker';
-import { formatInTimeZone } from 'date-fns-tz';
-import { parseISO } from 'date-fns';
-import enGB from 'date-fns/locale/en-GB'
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-const xapi2datetime = new RegExp('^([0-9]{4}-[0-9]{2}-[0-9]{2})T([0-9]{2}:[0-9]{2}):[0-9]{2}([+-][0-9]{2}[0-9]{2})$', 'gm')
+const xapi2datetime = new RegExp(
+  '^([0-9]{4}-[0-9]{2}-[0-9]{2})T([0-9]{2}:[0-9]{2}):[0-9]{2}([+-][0-9]{2}[0-9]{2})$',
+  'gm'
+);
 
-const xapi2date = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$', 'gm')
+const xapi2date = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$', '');
 
-const createJSDateObject = (date) => {
-  console.log("dateconversion for" + date )
+const displayFormatDate = 'yyyy-MM-dd';
+const displayFormatTime = 'yyyy-MM-dd HH:mm';
+
+function createJSDateObject(date) {
+  console.log('dateconversion for' + date);
   if (date == null) {
-    console.log("sending null")
-    return null
+    console.log('sending null');
+    return null;
   }
 
   // test for date without time
   if (xapi2date.test(date)) {
-    console.log("date converted" + new Date(date))
-    return new Date(date)
+    console.log('date converted' + new Date(date));
+    return new Date(date + ' 00:00');
   }
 
   // test for date with time
   if (xapi2datetime.test(date)) {
     // ok, ignore the time zone
-    console.log(new Date(xapi2datetime.replace(date, "$1 $2")))
+    console.log(new Date(xapi2datetime.replace(date, '$1 $2')));
 
-    return new Date(xapi2datetime.replace(date, "$1 $2"))
+    return new Date(xapi2datetime.replace(date, '$1 $2'));
   }
 
-  console.log("!!!!!")
-  throw new Error ("invalid time format: '" + date + "'")
+  console.log('!!!!!');
+  throw new Error("invalid time format: '" + date + "'");
 }
-
 
 XDate.propTypes = {
   showTime: PropTypes.bool,
@@ -65,37 +67,38 @@ XDate.defaultProps = {
   },
 };
 
-
-
 export function generateTimeObject(startDate, endDate, timeZone, timeEnabled) {
-  let response = {}
-  response.startDate = startDate==null?null:new Date(startDate)
-  response.endDate = endDate==null?null:new Date(endDate)
-  response.timeZone = timeZone==null?"Europe/London":timeZone
-  response.timeEnabled = timeEnabled
-  return response
+  let response = {};
+  response.startDate = startDate == null ? null : new Date(startDate);
+  response.endDate = endDate == null ? null : new Date(endDate);
+  response.timeZone = timeZone == null ? 'Europe/London' : timeZone;
+  response.timeEnabled = timeEnabled;
+  return response;
 }
-
 
 export function XDate(props) {
   const [showTime, setShowTime] = React.useState(props.timeEnabled);
-  const [startDate, setStartDate] = React.useState(() => createJSDateObject(props.startDate));
-  const [endDate, setEndDate] = React.useState(() => createJSDateObject(props.endDate));
+  const [endDate, setEndDate] = React.useState(() =>
+    createJSDateObject(props.endDate)
+  );
+  const [startDate, setStartDate] = React.useState(() =>
+    createJSDateObject(props.startDate)
+  );
   const [timeZone, setTimeZone] = React.useState(props.timeZone);
 
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
-    sendState()
-  },[showTime, startDate, endDate, timeZone])
+    sendState();
+  }, [showTime, startDate, endDate, timeZone]);
 
   const sendState = () => {
     props.onChange({
       startDate: startDate,
       endDate: endDate,
       timeZone: timeZone,
-      timeEnabled: showTime
-    })
+      timeEnabled: showTime,
+    });
   };
 
   const handleShowTime = (event) => {
@@ -132,16 +135,16 @@ export function XDate(props) {
             onChange={(date) => setStartDate(date)}
             selected={startDate}
             maxDate={endDate}
-            dateFormat={showTime?'yyyy-MM-dd hh:mm':'yyyy-MM-dd'}
+            dateFormat={showTime ? displayFormatTime : displayFormatDate}
             peekNextMonth
             showMonthDropdown
             showYearDropdown
             dropdownMode="select"
-            placeholderText={showTime?"Start date and time":"Start date"}
+            placeholderText={showTime ? 'Start date and time' : 'Start date'}
           />
           <DatePicker
             showTimeSelect={showTime}
-            dateFormat={showTime?'yyyy-MM-dd hh:mm':'yyyy-MM-dd'}
+            dateFormat={showTime ? displayFormatTime : displayFormatDate}
             selected={endDate}
             onChange={(date) => setEndDate(date)}
             minDate={startDate}
@@ -149,8 +152,7 @@ export function XDate(props) {
             showMonthDropdown
             showYearDropdown
             dropdownMode="select"
-            placeholderText={showTime?"End date and time":"End date"}
-
+            placeholderText={showTime ? 'End date and time' : 'End date'}
           />
         </Stack>
       </>

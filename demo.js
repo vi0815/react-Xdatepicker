@@ -10,10 +10,10 @@ export default function MaterialUIPickers() {
     <div>
       Support <br /> <br />
       <XDate
-        startDate = "2022-08-01"
-        endDate = "2022-08-08"
+        startDate = {"2022-08-01"}
+        endDate = {"2202-08-08"}
         timeZone = "Europe/Paris"
-        timeEnabled = {true}
+        timeEnabled = {false}
         disableShowTimeSwitch={false}
         onChange={(target) => {
           setResourceDate(target)
