@@ -15,8 +15,7 @@ import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import PropTypes, { string, bool, func, object } from 'prop-types';
 import DatePicker from 'react-datepicker';
-import { getTimezoneOffset } from 'date-fns-tz'
-
+import { getTimezoneOffset } from 'date-fns-tz';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -31,22 +30,28 @@ const displayFormatDate = 'yyyy-MM-dd';
 const displayFormatTime = 'yyyy-MM-dd HH:mm';
 
 function getHoursOffsetFromTimezone(date, tz) {
-  let hours = getTimezoneOffset(tz, date)/60/60/1000
-  let result = hours>=0?"+":"-"
-  result = result + String(hours).padStart(2, '0') + '00'
-  return result
+  let hours = getTimezoneOffset(tz, date) / 60 / 60 / 1000;
+  let result = hours >= 0 ? '+' : '-';
+  result = result + String(hours).padStart(2, '0') + '00';
+  return result;
 }
 
 function prepareTimeObject(dateObject, tzString) {
-    let redate = /\//g
-    let date = dateObject.toLocaleDateString().replace(redate, "-")
-    let time = date + "T" + dateObject.toLocaleTimeString().split(":").slice(0,2).join(':') + getHoursOffsetFromTimezone(date, tzString)
-    let minutes = dateObject.getHours()*60 + dateObject.getMinutes()
-    return {
-      date: date,
-      time: time,
-      minutes: minutes
-    }    
+  console.log('prepare: ' + dateObject);
+  const dateParts = dateObject.toLocaleDateString().split('/');
+  let date = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+
+  let time =
+    date +
+    'T' +
+    dateObject.toLocaleTimeString().split(':').slice(0, 2).join(':') +
+    getHoursOffsetFromTimezone(date, tzString);
+  let minutes = dateObject.getHours() * 60 + dateObject.getMinutes();
+  return {
+    date: date,
+    time: time,
+    minutes: minutes,
+  };
 }
 
 function createJSDateObject(date) {
@@ -69,7 +74,6 @@ function createJSDateObject(date) {
     return new Date(date.replace(xapi2datetime, '$1 $2'));
   }
 
-  console.log('!!!!!');
   throw new Error("invalid time format: '" + date + "'");
 }
 
@@ -110,13 +114,19 @@ export function XDate(props) {
 
   React.useEffect(() => {
     sendState();
-    prepareTimeObject(startDate, timeZone)
   }, [showTime, startDate, endDate, timeZone]);
 
   const sendState = () => {
+    const startDateInfo = prepareTimeObject(startDate, timeZone);
+    const endDateInfo = prepareTimeObject(endDate, timeZone);
+
     props.onChange({
-      startDate: startDate,
-      endDate: endDate,
+      startDate: startDateInfo.date,
+      startTime: startDateInfo.time,
+      startMinutes: startDateInfo.minutes,
+      endDate: endDateInfo.date,
+      endTime: endDateInfo.time,
+      endMinutes: endDateInfo.minutes,
       timeZone: timeZone,
       timeEnabled: showTime,
     });
@@ -124,15 +134,6 @@ export function XDate(props) {
 
   const handleShowTime = (event) => {
     setShowTime(event.target.checked);
-  };
-
-  const handleChangeStartDate = (newValue) => {
-    setStartDate(newValue);
-    console.log(newValue.format('YYYY-MM-DD'));
-  };
-
-  const handleChangeEndDate = (newValue) => {
-    setEndDate(newValue);
   };
 
   const handleClickOpen = () => {
@@ -152,9 +153,12 @@ export function XDate(props) {
       <>
         <Stack direction="row" spacing={1}>
           <DatePicker
-            showTimeSelect={showTime}
-            onChange={(date) => setStartDate(date)}
             selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            selectsStart
+            startDate={startDate}
+            endDate={endDate}
+            showTimeSelect={showTime}
             maxDate={endDate}
             dateFormat={showTime ? displayFormatTime : displayFormatDate}
             peekNextMonth
@@ -164,10 +168,13 @@ export function XDate(props) {
             placeholderText={showTime ? 'Start date and time' : 'Start date'}
           />
           <DatePicker
-            showTimeSelect={showTime}
-            dateFormat={showTime ? displayFormatTime : displayFormatDate}
             selected={endDate}
             onChange={(date) => setEndDate(date)}
+            selectsEnd
+            startDate={startDate}
+            showTimeSelect={showTime}
+            dateFormat={showTime ? displayFormatTime : displayFormatDate}
+            endDate={endDate}
             minDate={startDate}
             peekNextMonth
             showMonthDropdown
