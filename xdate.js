@@ -13,9 +13,43 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import PropTypes, { string, bool, func } from 'prop-types';
+import PropTypes, { string, bool, func, object } from 'prop-types';
 import DatePicker from 'react-datepicker';
+import { formatInTimeZone } from 'date-fns-tz';
+import { parseISO } from 'date-fns';
+import enGB from 'date-fns/locale/en-GB'
+
 import 'react-datepicker/dist/react-datepicker.css';
+
+const xapi2datetime = new RegExp('^([0-9]{4}-[0-9]{2}-[0-9]{2})T([0-9]{2}:[0-9]{2}):[0-9]{2}([+-][0-9]{2}[0-9]{2})$', 'gm')
+
+const xapi2date = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$', 'gm')
+
+const createJSDateObject = (date) => {
+  console.log("dateconversion for" + date )
+  if (date == null) {
+    console.log("sending null")
+    return null
+  }
+
+  // test for date without time
+  if (xapi2date.test(date)) {
+    console.log("date converted" + new Date(date))
+    return new Date(date)
+  }
+
+  // test for date with time
+  if (xapi2datetime.test(date)) {
+    // ok, ignore the time zone
+    console.log(new Date(xapi2datetime.replace(date, "$1 $2")))
+
+    return new Date(xapi2datetime.replace(date, "$1 $2"))
+  }
+
+  console.log("!!!!!")
+  throw new Error ("invalid time format: '" + date + "'")
+}
+
 
 XDate.propTypes = {
   showTime: PropTypes.bool,
@@ -31,6 +65,8 @@ XDate.defaultProps = {
   },
 };
 
+
+
 export function generateTimeObject(startDate, endDate, timeZone, timeEnabled) {
   let response = {}
   response.startDate = startDate==null?null:new Date(startDate)
@@ -42,29 +78,37 @@ export function generateTimeObject(startDate, endDate, timeZone, timeEnabled) {
 
 
 export function XDate(props) {
-  const [showTime, setShowTime] = React.useState(props.timeObject.timeEnabled);
-  const [startDate, setStartDate] = React.useState(props.timeObject.startDate);
-  const [endDate, setEndDate] = React.useState(props.timeObject.endDate);
-  const [timeZone, setTimeZone] = React.useState(props.timeObject.timeZone);
+  const [showTime, setShowTime] = React.useState(props.timeEnabled);
+  const [startDate, setStartDate] = React.useState(() => createJSDateObject(props.startDate));
+  const [endDate, setEndDate] = React.useState(() => createJSDateObject(props.endDate));
+  const [timeZone, setTimeZone] = React.useState(props.timeZone);
 
   const [open, setOpen] = React.useState(false);
 
-  const sendState = () => {};
+  React.useEffect(() => {
+    sendState()
+  },[showTime, startDate, endDate, timeZone])
+
+  const sendState = () => {
+    props.onChange({
+      startDate: startDate,
+      endDate: endDate,
+      timeZone: timeZone,
+      timeEnabled: showTime
+    })
+  };
 
   const handleShowTime = (event) => {
     setShowTime(event.target.checked);
-    sendState();
   };
 
   const handleChangeStartDate = (newValue) => {
     setStartDate(newValue);
     console.log(newValue.format('YYYY-MM-DD'));
-    sendState();
   };
 
   const handleChangeEndDate = (newValue) => {
     setEndDate(newValue);
-    sendState();
   };
 
   const handleClickOpen = () => {
@@ -77,7 +121,6 @@ export function XDate(props) {
 
   const handleChange = (event) => {
     setTimeZone(event.target.value);
-    sendState();
   };
 
   const generateDateTimePicker = () => {

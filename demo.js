@@ -3,22 +3,25 @@ import { XDate, generateTimeObject } from './xdate';
 
 
 export default function MaterialUIPickers() {
-  const [resourceDate, setResourceDate] = React.useState(() => generateTimeObject(
-    "2022-08-04", "2022-08-14", "Europe/London", false
-  ))
+  const [resourceDate, setResourceDate] = React.useState({})
 
 
   return (
     <div>
       Support <br /> <br />
       <XDate
-        timeObject = {resourceDate}
+        startDate = "2022-08-01"
+        endDate = "2022-08-08"
+        timeZone = "Europe/Paris"
+        timeEnabled = {true}
         disableShowTimeSwitch={false}
         onChange={(target) => {
           setResourceDate(target)
           console.log(target)
         }}
       />
+
+      <pre>{JSON.stringify(resourceDate, null, 2)}</pre>
 
 
 
