@@ -4,7 +4,6 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import InputLabel from '@mui/material/InputLabel';
@@ -37,7 +36,7 @@ function getHoursOffsetFromTimezone(date, tz) {
 }
 
 function prepareTimeObject(dateObject, tzString) {
-  console.log('prepare: ' + dateObject);
+  if (dateObject == null) return null;
   const dateParts = dateObject.toLocaleDateString().split('/');
   let date = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
 
@@ -57,13 +56,11 @@ function prepareTimeObject(dateObject, tzString) {
 function createJSDateObject(date) {
   console.log('dateconversion for' + date);
   if (date == null) {
-    console.log('sending null');
     return null;
   }
 
   // test for date without time
   if (xapi2date.test(date)) {
-    console.log('date converted' + new Date(date));
     return new Date(date + ' 00:00');
   }
 
@@ -120,13 +117,15 @@ export function XDate(props) {
     const startDateInfo = prepareTimeObject(startDate, timeZone);
     const endDateInfo = prepareTimeObject(endDate, timeZone);
 
+
+
     props.onChange({
-      startDate: startDateInfo.date,
-      startTime: startDateInfo.time,
-      startMinutes: startDateInfo.minutes,
-      endDate: endDateInfo.date,
-      endTime: endDateInfo.time,
-      endMinutes: endDateInfo.minutes,
+      startDate: startDateInfo==null?null:startDateInfo.date,
+      startTime: startDateInfo==null?null:startDateInfo.time,
+      startMinutes: startDateInfo==null?null:startDateInfo.minutes,
+      endDate: endDateInfo==null?null:endDateInfo.date,
+      endTime: endDateInfo==null?null:endDateInfo.time,
+      endMinutes: endDateInfo==null?null:endDateInfo.minutes,
       timeZone: timeZone,
       timeEnabled: showTime,
     });
@@ -146,6 +145,7 @@ export function XDate(props) {
 
   const handleChange = (event) => {
     setTimeZone(event.target.value);
+    setOpen(false)
   };
 
   const generateDateTimePicker = () => {
@@ -245,10 +245,6 @@ export function XDate(props) {
             </FormControl>
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
       </Dialog>
     );
   };
